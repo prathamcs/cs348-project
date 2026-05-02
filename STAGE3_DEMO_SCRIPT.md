@@ -12,7 +12,7 @@ For the final deployment, my code is hosted on GitHub and the application is dep
 
 GitHub URL: `https://github.com/prathamcs/cs348-project`
 
-Application URL: `<paste your Vercel URL here>`
+Application URL: `https://cs348-projectfinal.vercel.app/`
 
 ## 0:45-1:45 - Application Demo
 
@@ -139,11 +139,39 @@ I also used AI to help create the Stage 3 demo guide and this script.
 
 The final responsibility was still mine. I reviewed the code changes, generated migrations, ran Django checks and tests locally, pushed the code to GitHub, and deployed the app using Vercel and Neon.
 
-## 7:00-8:00 - Deployment Proof
+## 7:00-8:45 - Deployment Architecture and Proof
 
-Finally, I will show that the app is deployed.
+Finally, I will explain how the deployed version works and show that the app is deployed.
 
-The live app is running on Vercel, and the database is hosted on Neon Postgres.
+There are three main services involved:
+
+GitHub stores the project code. This includes the Django views, models, forms, templates, migrations, and configuration files.
+
+Vercel hosts and runs the Django application. When someone visits the live application URL, Vercel receives the web request and runs my Django code to generate the response.
+
+Neon hosts the Postgres database. This is where the actual application data lives, including artists, genres, albums, reviews, ratings, and listened dates.
+
+The connection between Vercel and Neon happens through an environment variable called `DATABASE_URL` or `POSTGRES_URL`. In my Django settings, the app checks for those environment variables. If one exists, Django connects to Neon Postgres. If no hosted database URL exists, the app falls back to local SQLite for development.
+
+So the request flow is:
+
+```text
+User browser -> Vercel URL -> Django app on Vercel -> DATABASE_URL -> Neon Postgres
+```
+
+For example, when a user adds an artist on the deployed website, the browser submits the form to the Django app running on Vercel. Django validates the form, connects to Neon using the database URL, and inserts the new artist into the hosted Postgres database. When the page reloads, Django reads that artist back from Neon.
+
+The Neon Console is the database dashboard. It lets me view connection strings, open the SQL editor, inspect tables, and manually run SQL queries. For example, I can query tables like:
+
+```sql
+SELECT * FROM reviews_artist;
+SELECT * FROM reviews_album;
+SELECT * FROM reviews_review;
+```
+
+This is useful for verifying that data entered through the deployed website is actually being stored in the hosted database.
+
+One important point is that GitHub stores code, not application data. My original local data, like Tyler, the Creator and Jeff Buckley, was stored in my local SQLite file, `db.sqlite3`. The deployed app uses Neon Postgres instead, so that data does not appear on the live site unless I either re-enter it through the live app or export it from SQLite and import it into Neon.
 
 To prove that the live app and database are connected, I will add or edit a review on the deployed website. Then I will open the Review Report page and show that the report reflects the new or updated data.
 
