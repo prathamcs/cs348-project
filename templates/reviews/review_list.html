@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Album Reviews</title>
+</head>
+<body>
+    <h1>Album Reviews</h1>
+
+    <a href="{% url 'add_review' %}">Add Review</a> |
+    <a href="{% url 'review_report' %}">View Report</a> |
+    <a href="{% url 'manage_artists' %}">Manage Artists</a> |
+    <a href="{% url 'manage_albums' %}">Manage Albums</a> |
+    <a href="{% url 'manage_genres' %}">Manage Genres</a>
+
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>Album</th>
+            <th>Artist</th>
+            <th>Genre</th>
+            <th>Year</th>
+            <th>Rating</th>
+            <th>Review</th>
+            <th>Listened On</th>
+            <th>Actions</th>
+        </tr>
+        {% for review in reviews %}
+        <tr>
+            <td>{{ review.album.title }}</td>
+            <td>{{ review.album.artist.name }}</td>
+            <td>{{ review.album.genre.name }}</td>
+            <td>{{ review.album.release_year }}</td>
+            <td>{{ review.rating }}</td>
+            <td>{{ review.review_text }}</td>
+            <td>{{ review.listened_on }}</td>
+            <td>
+                <a href="{% url 'edit_review' review.id %}">Edit</a>
+                <a href="{% url 'delete_review' review.id %}">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

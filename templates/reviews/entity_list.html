@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage {{ entity_name }}</title>
+</head>
+<body>
+    <h1>Manage {{ entity_name }}</h1>
+
+    <p>
+        <a href="{% url 'review_list' %}">Reviews</a> |
+        <a href="{% url 'manage_artists' %}">Artists</a> |
+        <a href="{% url 'manage_albums' %}">Albums</a> |
+        <a href="{% url 'manage_genres' %}">Genres</a> |
+        <a href="{% url 'review_report' %}">Report</a>
+    </p>
+
+    <p><a href="{% url add_url %}">Add {{ entity_name|slice:":-1" }}</a></p>
+
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>Name</th>
+            <th>Details</th>
+            <th>Actions</th>
+        </tr>
+        {% for object in objects %}
+        <tr>
+            <td>{{ object }}</td>
+            <td>
+                {% if entity_name == "Albums" %}
+                Artist: {{ object.artist.name }} | Genre: {{ object.genre.name }} | Year: {{ object.release_year }}
+                {% else %}
+                -
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url edit_url object.id %}">Edit</a>
+                <a href="{% url delete_url object.id %}">Delete</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3">No {{ entity_name|lower }} found.</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Review Report</title>
+</head>
+<body>
+    <h1>Review Report</h1>
+
+    <p>
+        <a href="{% url 'review_list' %}">Reviews</a> |
+        <a href="{% url 'manage_artists' %}">Artists</a> |
+        <a href="{% url 'manage_albums' %}">Albums</a> |
+        <a href="{% url 'manage_genres' %}">Genres</a>
+    </p>
+
+    <form method="get">
+        {{ form.as_p }}
+        <button type="submit">Generate Report</button>
+    </form>
+
+    <h2>Statistics</h2>
+    <p>Total Reviews: {{ count }}</p>
+    <p>Average Rating: {{ stats.average_rating }}</p>
+
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>Album</th>
+            <th>Artist</th>
+            <th>Genre</th>
+            <th>Year</th>
+            <th>Rating</th>
+            <th>Review</th>
+        </tr>
+        {% for review in reviews %}
+        <tr>
+            <td>{{ review.album.title }}</td>
+            <td>{{ review.album.artist.name }}</td>
+            <td>{{ review.album.genre.name }}</td>
+            <td>{{ review.album.release_year }}</td>
+            <td>{{ review.rating }}</td>
+            <td>{{ review.review_text }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <a href="{% url 'review_list' %}">Back</a>
+</body>
+</html>

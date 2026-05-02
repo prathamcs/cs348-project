@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+
+    <p>
+        <a href="{% url 'review_list' %}">Reviews</a> |
+        <a href="{% url 'manage_artists' %}">Artists</a> |
+        <a href="{% url 'manage_albums' %}">Albums</a> |
+        <a href="{% url 'manage_genres' %}">Genres</a>
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+
+    <a href="{% url cancel_url %}">Back</a>
+</body>
+</html>
