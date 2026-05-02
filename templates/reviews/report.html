@@ -29,6 +29,7 @@
             <th>Genre</th>
             <th>Year</th>
             <th>Rating</th>
+            <th>Listened On</th>
             <th>Review</th>
         </tr>
         {% for review in reviews %}
@@ -38,6 +39,7 @@
             <td>{{ review.album.genre.name }}</td>
             <td>{{ review.album.release_year }}</td>
             <td>{{ review.rating }}</td>
+            <td>{{ review.listened_on }}</td>
             <td>{{ review.review_text }}</td>
         </tr>
         {% endfor %}

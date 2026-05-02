@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db import transaction
 from django.db.models import Avg
 from .models import Review, Artist, Album, Genre
 from .forms import (
@@ -11,7 +12,9 @@ from .forms import (
 
 
 def review_list(request):
-    reviews = Review.objects.select_related("album", "album__artist", "album__genre").all()
+    reviews = Review.objects.select_related(
+        "album", "album__artist", "album__genre"
+    ).order_by("-listened_on", "-created_at")
     return render(request, "reviews/review_list.html", {"reviews": reviews})
 
 
@@ -148,7 +151,8 @@ def add_review(request):
     if request.method == "POST":
         form = ReviewForm(request.POST)
         if form.is_valid():
-            form.save()
+            with transaction.atomic():
+                form.save()
             return redirect("review_list")
     else:
         form = ReviewForm()
@@ -160,13 +164,15 @@ def add_review(request):
 
 
 def edit_review(request, review_id):
-    review = get_object_or_404(Review, id=review_id)
     if request.method == "POST":
-        form = ReviewForm(request.POST, instance=review)
-        if form.is_valid():
-            form.save()
-            return redirect("review_list")
+        with transaction.atomic():
+            review = get_object_or_404(Review.objects.select_for_update(), id=review_id)
+            form = ReviewForm(request.POST, instance=review)
+            if form.is_valid():
+                form.save()
+                return redirect("review_list")
     else:
+        review = get_object_or_404(Review, id=review_id)
         form = ReviewForm(instance=review)
     return render(request, "reviews/review_form.html", {
         "form": form,
@@ -176,15 +182,19 @@ def edit_review(request, review_id):
 
 
 def delete_review(request, review_id):
-    review = get_object_or_404(Review, id=review_id)
     if request.method == "POST":
-        review.delete()
+        with transaction.atomic():
+            review = get_object_or_404(Review.objects.select_for_update(), id=review_id)
+            review.delete()
         return redirect("review_list")
+    review = get_object_or_404(Review, id=review_id)
     return render(request, "reviews/review_delete.html", {"review": review})
 
 
 def review_report(request):
-    reviews = Review.objects.select_related("album", "album__artist", "album__genre").all()
+    reviews = Review.objects.select_related(
+        "album", "album__artist", "album__genre"
+    ).order_by("-listened_on", "-created_at")
     form = ReviewReportForm(request.GET or None)
 
     if form.is_valid():
@@ -225,7 +235,8 @@ def _save_entity(request, form_class, title, redirect_name, instance=None):
     if request.method == "POST":
         form = form_class(request.POST, instance=instance)
         if form.is_valid():
-            form.save()
+            with transaction.atomic():
+                form.save()
             return redirect(redirect_name)
     else:
         form = form_class(instance=instance)
@@ -239,7 +250,8 @@ def _save_entity(request, form_class, title, redirect_name, instance=None):
 
 def _delete_entity(request, obj, label, redirect_name, entity_label):
     if request.method == "POST":
-        obj.delete()
+        with transaction.atomic():
+            obj.delete()
         return redirect(redirect_name)
 
     return render(request, "reviews/entity_delete.html", {
